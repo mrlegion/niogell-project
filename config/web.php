@@ -1,5 +1,7 @@
 <?php
 
+use yii\i18n\PhpMessageSource;
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
@@ -12,7 +14,37 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
+    'modules'    => [
+        'admin' => [
+            'class'  => 'app\modules\admin\Module',
+            'layout' => 'main',
+        ],
+    ],
     'components' => [
+        'user'         => [
+            'identityClass' => \app\modules\admin\models\User::class,
+            'loginUrl'        => [],
+            'enableAutoLogin' => true,
+        ],
+        'i18n'         => [
+            'translations' => [
+                'layouts' => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/localization/',
+                    'sourceLanguage' => 'en',
+                ],
+                'user'    => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/localization/',
+                    'sourceLanguage' => 'en',
+                ],
+                'vote'    => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/localization/',
+                    'sourceLanguage' => 'en',
+                ],
+            ],
+        ],
         'authManager'  => [
             'class' => \yii\rbac\DbManager::class,
         ],
@@ -24,19 +56,21 @@ $config = [
         'cache'        => [
             'class' => 'yii\caching\FileCache',
         ],
-        'user'         => [
-            'identityClass'   => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
         'mailer'       => [
-            'class'            => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'class' => 'yii\swiftmailer\Mailer',
+            'viewPath' => '@app/mail',
+            'useFileTransport' => false,
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.mail.ru',
+                'username' => 'example_dev@mail.ru',
+                'password' => 'borrow8455/Order/wet',
+                'port' => '465',
+                'encryption' => 'ssl',
+            ],
         ],
         'log'          => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
