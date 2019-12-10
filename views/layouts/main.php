@@ -1,6 +1,5 @@
 <?php
 
-use app\assets\AdminLteAsset;
 use app\assets\AppAsset;
 use yii\helpers\Html;
 use yii\web\View;
@@ -9,10 +8,8 @@ use yii\web\View;
 /* @var $content string */
 
 // ! register assets
-AdminLteAsset::register($this);
 AppAsset::register($this);
 
-$directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
 
 ?>
 
@@ -30,13 +27,13 @@ $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed201
 <body class="hold-transition sidebar-mini">
 <?php $this->beginBody(); ?>
 
-<div class="wrapper">
-    <?= $this->render('header', compact('directoryAsset')) ?>
-    <?= $this->render('left', compact('directoryAsset')) ?>
-    <?= $this->render('content', compact('directoryAsset', 'content')) ?>
+<div class="container">
+    <?= $this->render('header') ?>
+    <?= $this->render('content', compact('content')) ?>
 </div>
 
 <?= $this->render('footer') ?>
+
 <?php $this->endBody(); ?>
 </body>
 </html>

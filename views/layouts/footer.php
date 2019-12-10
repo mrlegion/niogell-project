@@ -1,16 +1,15 @@
 <?php
 
-use yii\web\View;
+/* @var $this \yii\web\View */
 
-
-
-/* @var $this View */
 ?>
 
-<footer class="main-footer">
-    <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 3.0.1
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="text-center text-white">FOOTER</h4>
+            </div>
+        </div>
     </div>
 </footer>
