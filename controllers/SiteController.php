@@ -2,13 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\RegisterService;
+use app\models\VoteForm;
+use RuntimeException;
 use Yii;
-use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
@@ -17,25 +15,7 @@ class SiteController extends Controller
      */
     public function behaviors()
     {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
+        return parent::behaviors();
     }
 
     /**
@@ -44,11 +24,11 @@ class SiteController extends Controller
     public function actions()
     {
         return [
-            'error' => [
+            'error'   => [
                 'class' => 'yii\web\ErrorAction',
             ],
             'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
+                'class'           => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
@@ -64,65 +44,45 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
-    public function actionLogin()
+    public function actionVoting()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+        $model = new VoteForm();
+
+        // check on POST request
+        if (Yii::$app->request->isPost) {
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                try {
+                    $service = new RegisterService();
+                    $service->singup($model);
+                    Yii::$app->session->setFlash('RegisterSuccess', 'Check your email to confirm the registration.');
+                    return $this->redirect(['site/success', 'email' => $model->email]);
+                } catch (\Exception $e) {
+                    Yii::$app->errorHandler->logException($e);
+                    Yii::$app->session->setFlash('RegisterError', $e->getMessage());
+                }
+            }
         }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+        return $this->render('voting', compact('model'));
+    }
+
+    // ! There is no action on pressing the button to resend the message
+    public function actionSuccess() {
+        // TODO: Make a method to resend a message to a user
+        return $this->render('success', ['email' => Yii::$app->request->get('email')]);
+    }
+
+    // ! There is no action on the wrong token from the user
+    public function actionEmailConfirm($token)
+    {
+        // todo: Make two display options (one with successful confirmation, the second with an error)
+        $service = new RegisterService();
+        try {
+            $service->confirmation($token);
+        } catch (RuntimeException $e) {
+            Yii::$app->errorHandler->logException($e);
+            Yii::$app->session->setFlash('error', $e->getMessage());
         }
-
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
+        return $this->render('email-confirm');
     }
 }
