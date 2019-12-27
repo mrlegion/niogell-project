@@ -32,16 +32,33 @@ class Vote extends \yii\db\ActiveRecord
     const WAIT = 15;
     const DELETE = 99;
 
-    public function behaviors()
+    const AGES = [
+        '1' => 'Less 18 year',
+        '2' => 'From 18 to 24 year',
+        '3' => 'From 25 to 29 year',
+        '4' => 'From 30 to 39 year',
+        '5' => 'From 40 to 49 year',
+        '6' => 'From 50 to 60 year',
+        '7' => 'More than 60 years',
+    ];
+
+    const RATING = [
+        '1'  => 'One star',
+        '2'  => 'Two star',
+        '3'  => 'Three star',
+        '4'  => 'Four star',
+        '5'  => 'Five star',
+        '6'  => 'Six star',
+        '7'  => 'Seven star',
+        '8'  => 'Eight star',
+        '9'  => 'Nine star',
+        '10' => 'Ten star',
+    ];
+
+    public function transactions()
     {
         return [
-            'timestamp' => [
-                'class' => TimestampBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-            ],
+            'default' => self::OP_ALL,
         ];
     }
 
@@ -53,6 +70,19 @@ class Vote extends \yii\db\ActiveRecord
         return '{{%vote}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class'      => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -62,9 +92,10 @@ class Vote extends \yii\db\ActiveRecord
             [['email', 'phone', 'age', 'state', 'city', 'street', 'home', 'rating'], 'required'],
             [['age', 'rating', 'status'], 'integer'],
             [['text'], 'string'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created_at', 'updated_at'], 'integer'],
             [['email', 'state', 'city', 'street', 'home', 'verify_token'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 20],
+            [['email'], 'unique'],
         ];
     }
 
@@ -89,5 +120,64 @@ class Vote extends \yii\db\ActiveRecord
             'created_at'   => Yii::t('vote', 'Created At'),
             'updated_at'   => Yii::t('vote', 'Updated At'),
         ];
+    }
+
+    public function getCreatedAt()
+    {
+        $date = new \DateTime();
+        $date->setTimestamp($this->created_at);
+        return $date->format('Y-m-d H:i:s');
+    }
+
+    public function getUpdatedAt()
+    {
+        $date = new \DateTime();
+        $date->setTimestamp($this->updated_at);
+        return $date->format('Y-m-d H:i:s');
+    }
+
+    public static function findByEmail(string $email)
+    {
+        return self::findOne(['email' => $email]);
+    }
+
+    public static function hasEmail(string $email): bool
+    {
+        return self::findByEmail($email) !== null ? true : false;
+    }
+
+    public function getAddress(): string
+    {
+        return $this->state . ', c.' . $this->city . ', str. ' . $this->street . ', house ' . $this->home;
+    }
+
+    public function getAgeTitle(): string
+    {
+        return self::AGES[$this->age];
+    }
+
+    public function getRatingTitle(): string
+    {
+        $result = '<span style="color: #f39c12">';
+        for ($i = 0; $i < $this->rating; $i++) {
+            $result .= '<i class="fas fa-star"></i>';
+        }
+        return $result . '</span>';
+    }
+
+    public function getStatus()
+    {
+        switch ($this->status) {
+            case self::ACTIVE:
+                return '<span style="color: #27ae60"><b>Active</b></span>';
+            case self::INACTIVE:
+                return '<span style="color: #e67e22"><b>Inactive</b></span>';
+            case self::WAIT:
+                return '<span style="color: #e67e22"><b>Wait</b></span>';
+            case self::DELETE:
+                return '<span style="color: #e74c3c"><b>Deleted</b></span>';
+            case self::NONE:
+                return '<span style="color: #e74c3c"><b>Error!</b></span>';
+        }
     }
 }
