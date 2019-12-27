@@ -6,6 +6,8 @@ namespace app\models;
 
 use DomainException;
 use RuntimeException;
+use yii\base\ExitException;
+use yii\web\View;
 
 class RegisterService
 {
@@ -13,12 +15,14 @@ class RegisterService
      * Sing up new user to system
      *
      * @param VoteForm $form
+     * @throws \Exception
      */
     public function singup(VoteForm $form)
     {
         $transaction = Vote::getDb()->beginTransaction();
         try {
             $vote = $form->getVote();
+
             if ($vote->validate()) {
                 if ($vote->save()) {
                     MailService::sendEmail($vote);
@@ -27,21 +31,23 @@ class RegisterService
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
+            throw $e;
         }
     }
 
     /**
      * @param string $token
      * @return bool
+     * @throws ExitException
      */
     public function confirmation(string $token)
     {
         if (empty($token)) {
-            throw new DomainException('Empty confirm token.');
+            throw new ExitException(89, 'Verify token has empty');
         }
         $vote = Vote::findOne(['verify_token' => $token]);
-        if (!$vote) {
-            throw new DomainException('Vote is not found');
+        if ($vote === null) {
+            throw new ExitException(90, 'Verify token for email check is UNDEFINED');
         }
 
         $transaction = Vote::getDb()->beginTransaction();
