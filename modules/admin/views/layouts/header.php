@@ -16,18 +16,14 @@ use yii\web\View;
             <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <?= Html::a(Yii::t('layouts', 'Home'), ['site/index'], ['class' => 'nav-link']) ?>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <?= Html::a(Yii::t('layouts', 'Contact'), ['site/contact'], ['class' => 'nav-link']) ?>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <?= Html::a(Yii::t('layouts', 'About'), ['site/about'], ['class' => 'nav-link']) ?>
+            <?= Html::a(Yii::t('layouts', 'Home'), ['/site/index'], ['class' => 'nav-link']) ?>
         </li>
 
+        <?php if (Yii::$app->user->can('develop')): ?>
         <li class="nav-item d-none d-sm-inline-block">
             <?= Html::a(Yii::t('layouts', 'Gii'), ['/gii'], ['class' => 'nav-link']) ?>
         </li>
+        <?php endif; ?>
     </ul>
 
     <!-- SEARCH FORM -->
@@ -66,7 +62,7 @@ use yii\web\View;
             </div>
         </li>
         <li class="nav-item">
-            <?= Html::a('<i class="fas fa-sign-out-alt"></i>', ['site/logout'], ['class' => 'nav-link', 'data-toggle' => 'tooltip', 'title' => Yii::t('layouts','Logout')]) ?>
+            <?= Html::a('<i class="fas fa-sign-out-alt"></i>', ['auth/logout'], ['class' => 'nav-link', 'data-toggle' => 'tooltip', 'title' => Yii::t('layouts','Logout')]) ?>
         </li>
     </ul>
 </nav>
