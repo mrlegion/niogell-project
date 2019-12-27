@@ -26,8 +26,8 @@ $this->title = 'Vote for you favorite deputy';
                 </div>
             </div>
         </div>
-
     </section>
+<?php Yii::$app->session->removeFlash('EmailError'); // remove flash after showing to user ?>
 <?php endif; ?>
 
     <div class="row">
