@@ -21,7 +21,7 @@ $this->title = 'Success register on site!';
             <br>
             <p>To your mail <b>(<?= $email ?>)</b> sent an email with a link. <br>Go through it to confirm your mail.</p>
             <br>
-            <?= Html::a('Resend email', ['site/index'], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('Resend email', ['site/resend', 'email' => $email], ['class' => 'btn btn-primary']) ?>
         </div>
     </div>
 </div>
