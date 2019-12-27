@@ -50,7 +50,15 @@ class VoteForm extends Model
             [['text'], 'string'],
             [['email', 'state', 'city', 'street', 'home'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 20],
+            ['email', 'checkEmailOnDb'],
         ];
+    }
+
+    public function checkEmailOnDb($attribute, $params)
+    {
+        if (Vote::hasEmail($this->email)) {
+            $this->addError($attribute, Yii::t('vote','This email address already register on site. Please select other email or check your email for validate email'));
+        }
     }
 
     public function checkAcceptTeam($attribute, $params)
@@ -92,20 +100,21 @@ class VoteForm extends Model
         $vote = new Vote();
 
         $vote->setAttributes([
-            'email'  => $this->email,
-            'phone'  => $this->phone,
-            'age'    => $this->age,
-            'state'  => $this->state,
-            'city'   => $this->city,
-            'street' => $this->street,
-            'home'   => $this->home,
-            'rating' => $this->rating,
-            'text'   => $this->text,
-            'status' => Vote::INACTIVE,
+            'email'        => $this->email,
+            'phone'        => $this->phone,
+            'age'          => $this->age,
+            'state'        => $this->state,
+            'city'         => $this->city,
+            'street'       => $this->street,
+            'home'         => $this->home,
+            'rating'       => $this->rating,
+            'text'         => $this->text,
+            'status'       => Vote::INACTIVE,
             'verify_token' => Yii::$app->security->generateRandomString(),
         ]);
 
         return $vote;
-
     }
+
+
 }
