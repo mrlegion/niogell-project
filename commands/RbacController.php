@@ -4,12 +4,14 @@
 namespace app\commands;
 
 
-use app\models\User;
+use app\modules\admin\models\User;
 use Yii;
 use yii\base\Exception;
 use yii\console\Controller;
 use yii\console\ExitCode;
+use yii\console\widgets\Table;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Console;
 
 class RbacController extends Controller
 {
@@ -119,7 +121,7 @@ class RbacController extends Controller
 
 
         // ! create super admin user for programmers
-        $super = $auth->createRole('superAdmin');
+        $super = $auth->createRole('superuser');
         $super->description = 'Super admin (.!.)';
         $auth->add($super);
 
@@ -130,6 +132,44 @@ class RbacController extends Controller
 
         echo 'Create super admin, matherFUCKER role ..!.. ..!.., YEAH, BABY!' . PHP_EOL;
         echo 'End script work' . PHP_EOL;
+    }
+
+    public function actionCreatePermission()
+    {
+        $manager = Yii::$app->getAuthManager();
+
+        $this->stdout("Welcome to created permission in RBAC system\n");
+
+        enter_permission_name:
+        $permission_name = $this->prompt("Please enter new permission name: ", ['required' => true]);
+
+        if (empty($permission_name)) {
+            $this->stdout("ERROR!\nPermission name cannot be empty!\nCancel operation!\n");
+            return ExitCode::CANTCREAT;
+        }
+
+        if ($manager->getPermission($permission_name) !== null) {
+            $toRewrite = $this->stdout("WARNING!\nPermission with this name all ready exist!\nYou can change permission name? [yes/no]: ");
+            $toRewrite = strtolower($toRewrite);
+            if ($toRewrite === 'yes' || $toRewrite === 'y') {
+                goto enter_permission_name;
+            } else if ($toRewrite === 'no' || $toRewrite === 'n') {
+                $this->stdout('OPERATION CANCEL BY USER!');
+                return ExitCode::CANTCREAT;
+            } else {
+                $this->stdout("ERROR!\nEntered response from user cannot be recognized!\nCancel operation and exit");
+                return ExitCode::CANTCREAT;
+            }
+        }
+
+        $description = $this->prompt("Enter description for permission (can be empty): ");
+
+        $permission = $manager->createPermission($permission_name);
+        $permission->description = empty($description) ? '' : $description;
+        $manager->add($permission);
+
+        $this->stdout("Success created new permission [" . $permission_name . "]");
+        return ExitCode::OK;
     }
 
     public function actionAssign()
@@ -157,6 +197,107 @@ class RbacController extends Controller
         }
 
         return ExitCode::OK;
+    }
+
+    public function actionPermissionToRole()
+    {
+        $this->stdout("Welcome in assign system permission to role\n");
+
+        $manager = Yii::$app->getAuthManager();
+
+        $permission_name = $this->select('Select permission: ', ArrayHelper::map(
+            $manager->getPermissions(),
+            'name',
+            'description'
+        ));
+        $role_name = $this->select('Select role to assign: ', ArrayHelper::map(
+            $manager->getRoles(),
+            'name',
+            'description'
+        ));
+
+        $permission = $manager->getPermission($permission_name);
+        $role = $manager->getRole($role_name);
+
+        $manager->addChild($role, $permission);
+
+        $this->stdout("Success added new permission [" . $permission_name . "] to select role [" . $role_name . "]");
+        return ExitCode::OK;
+    }
+
+    public function actionShowAllPermission()
+    {
+        $manager = Yii::$app->getAuthManager();
+        $permissions = $manager->getPermissions();
+        $index = 0;
+        $rows = [];
+
+        foreach ($permissions as $permission) {
+            $rows[$index++] = [$permission->name];
+        }
+
+        $table = new Table();
+        $table->setHeaders(['PERMISSION NAME'])
+            ->setRows($rows);
+        $this->stdout($table->run());
+    }
+
+    /**
+     * Show all roles in RBAC system
+     */
+    public function actionShowAllRoles(): void
+    {
+        $manager = Yii::$app->getAuthManager();
+        $roles = $manager->getRoles();
+        $rows = [];
+        $index = 0;
+        foreach ($roles as $role) {
+            $rows[$index++] = [$role->name];
+        }
+
+        $table = new Table();
+        $table->setHeaders(['Name'])
+            ->setRows($rows);
+        $this->stdout($table->run());
+    }
+
+    public static function isLoaded(): bool
+    {
+        $manager = \Yii::$app->getAuthManager();
+        if (count($manager->getRoles()) == 0) {
+            Console::stdout('Not found Roles in RBAC system' . PHP_EOL);
+            Console::stdout('Please start command: yii rbac/init' . PHP_EOL);
+            return false;
+        }
+        return true;
+    }
+
+    public static function hasRole(string $role): bool
+    {
+        if (\Yii::$app->getAuthManager()->getRole($role) === null) {
+            Console::stdout('Not found ' . $role . ' Role in RBAC system' . PHP_EOL);
+            Console::stdout('Please start command: yii rbac/init' . PHP_EOL);
+            return false;
+        }
+        return true;
+    }
+
+    public function actionClear()
+    {
+
+        $response = $this->prompt('You really want delete all RBAC records? [yes/no]: ', ['required' => true]);
+        if (strtolower($response) === 'yes' || strtolower($response) === 'y') {
+            Yii::$app->getAuthManager()->removeAll();
+            $this->stdout('Removed success!');
+            return;
+        } else if (strtolower($response) === 'no' || strtolower($response) === 'n') {
+            $this->stdout('Cancel operation!');
+            return;
+        } else {
+            $this->stdout('Invalid input!');
+            $this->stdout('Cancel operation!');
+            return;
+        }
     }
 
     public function actionRevoke()
@@ -193,7 +334,7 @@ class RbacController extends Controller
      */
     private function findModel($username)
     {
-        if (!$model = User::getByUsername($username)) {
+        if (!$model = User::findByUsername($username)) {
             throw new Exception('User not found');
         }
         return $model;
