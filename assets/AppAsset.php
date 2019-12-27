@@ -24,6 +24,7 @@ class AppAsset extends AssetBundle
         'css/main.css',
     ];
     public $js = [
+        'js/admin_vote.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
