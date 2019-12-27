@@ -22,7 +22,8 @@
         "yiisoft/yii2-bootstrap4": "^2.0",
         "yiisoft/yii2-jui": "^2.0",
         "npm-asset/sweetalert2": "^9.5",
-        "mihaildev/yii2-ckeditor": "*"
+        "mihaildev/yii2-ckeditor": "*",
+        "wadeshuler/yii2-ckeditor-cdn": "~1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

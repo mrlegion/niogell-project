@@ -21,6 +21,9 @@ $config = [
             'class'  => 'app\modules\admin\Module',
             'layout' => 'main',
         ],
+        'ckeditor' => [
+            'class' => 'wadeshuler\ckeditor\Module',
+        ],
     ],
     'components'     => [
         'user'         => [
