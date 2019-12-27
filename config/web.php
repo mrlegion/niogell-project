@@ -6,23 +6,25 @@ $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
-    'id'         => 'basic',
-    'basePath'   => dirname(__DIR__),
-    'bootstrap'  => ['log'],
-    'language'   => 'ru-RU',
-    'aliases'    => [
+    'id'             => 'basic',
+    'basePath'       => dirname(__DIR__),
+    'bootstrap'      => ['log'],
+    'language'       => 'ru-RU',
+    'sourceLanguage' => 'en-US',
+    'aliases'        => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@admin' => '@app/modules/admin',
     ],
-    'modules'    => [
+    'modules'        => [
         'admin' => [
             'class'  => 'app\modules\admin\Module',
             'layout' => 'main',
         ],
     ],
-    'components' => [
+    'components'     => [
         'user'         => [
-            'identityClass' => \app\modules\admin\models\User::class,
+            'identityClass'   => \app\modules\admin\models\User::class,
             'loginUrl'        => [],
             'enableAutoLogin' => true,
         ],
@@ -30,18 +32,32 @@ $config = [
             'translations' => [
                 'layouts' => [
                     'class'          => PhpMessageSource::class,
-                    'basePath'       => '@app/localization/',
-                    'sourceLanguage' => 'en',
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
                 ],
                 'user'    => [
                     'class'          => PhpMessageSource::class,
-                    'basePath'       => '@app/localization/',
-                    'sourceLanguage' => 'en',
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
+                ],
+                // module connect
+                'admin/*' => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
+                    'fileMap'        => [
+                        'admin/user' => 'user.php',
+                    ],
                 ],
                 'vote'    => [
                     'class'          => PhpMessageSource::class,
-                    'basePath'       => '@app/localization/',
-                    'sourceLanguage' => 'en',
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
+                ],
+                'email'   => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
                 ],
             ],
         ],
@@ -60,15 +76,15 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer'       => [
-            'class' => 'yii\swiftmailer\Mailer',
-            'viewPath' => '@app/mail',
+            'class'            => 'yii\swiftmailer\Mailer',
+            'viewPath'         => '@app/mail',
             'useFileTransport' => false,
-            'transport' => [
-                'class' => 'Swift_SmtpTransport',
-                'host' => 'smtp.mail.ru',
-                'username' => 'example_dev@mail.ru',
-                'password' => 'borrow8455/Order/wet',
-                'port' => '465',
+            'transport'        => [
+                'class'      => 'Swift_SmtpTransport',
+                'host'       => 'smtp.mail.ru',
+                'username'   => 'example_dev@mail.ru',
+                'password'   => 'borrow8455/Order/wet',
+                'port'       => '465',
                 'encryption' => 'ssl',
             ],
         ],
@@ -88,11 +104,12 @@ $config = [
             'showScriptName'  => false,
             'rules'           => [
                 '<controller><action:\w+><id:\d+>' => '<controller>/<action>/<id>',
+                '<controller><action:\w+><id:\d+>'         => 'admin/<controller>/<action>/<id>',
             ],
         ],
 
     ],
-    'params'     => $params,
+    'params'         => $params,
 ];
 
 if (YII_ENV_DEV) {
