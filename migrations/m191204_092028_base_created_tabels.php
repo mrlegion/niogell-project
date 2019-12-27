@@ -25,8 +25,8 @@ class m191204_092028_base_created_tabels extends Migration
             'auth_key'     => $this->string(255)->notNull(),
             'verify_token' => $this->string(255)->null()->defaultValue(null),
             'is_blocked'   => $this->smallInteger(1)->defaultValue(0)->notNull(),
-            'created_at'   => $this->date(),
-            'updated_at'   => $this->date(),
+            'created_at'   => $this->integer(11),
+            'updated_at'   => $this->integer(11),
         ]);
 
         // create votes table
@@ -41,10 +41,10 @@ class m191204_092028_base_created_tabels extends Migration
             'home'         => $this->string(255)->notNull(),
             'rating'       => $this->smallInteger(2)->notNull(),
             'text'         => $this->text(),
-            'verify_token' => $this->string(255)->notNull(),
+            'verify_token' => $this->string(255)->null()->defaultValue(null),
             'status'       => $this->smallInteger(2)->defaultValue(0)->notNull(),
-            'created_at'   => $this->date(),
-            'updated_at'   => $this->date(),
+            'created_at'   => $this->integer(11),
+            'updated_at'   => $this->integer(11),
 
         ]);
     }
