@@ -3,6 +3,8 @@
 namespace app\modules\admin\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%email}}".
@@ -23,6 +25,26 @@ class Email extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%email}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class'      => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+        ];
+    }
+
+    public function transactions()
+    {
+        return [
+            'default' => self::OP_ALL,
+        ];
     }
 
     /**

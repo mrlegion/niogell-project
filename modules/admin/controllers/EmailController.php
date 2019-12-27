@@ -12,14 +12,7 @@ use yii\web\Controller;
 
 class EmailController extends Controller
 {
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                
-            ],
-        ];
-    }
+
 
     public function actionIndex()
     {
@@ -39,6 +32,11 @@ class EmailController extends Controller
 
         if (\Yii::$app->request->isPost) {
             // todo: create logic for adding email template in database
+            if ($model->load(\Yii::$app->request->post())) {
+                if ($model->save()) {
+                    return $this->redirect(['email/index']);
+                }
+            }
         }
 
         return $this->render('create', compact('model'));
