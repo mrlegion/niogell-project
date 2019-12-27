@@ -27,23 +27,9 @@ class LoginForm extends Model
             // username and password are both required
             [['username', 'password'], 'required'],
             // rememberMe must be a boolean value
-            ['remember', 'boolean'],
+            ['remember', 'safe'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
-        ];
-    }
-
-    public function behaviors()
-    {
-        return [
-            'timestamp' => [
-                'class' => TimestampBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-                'value' => new Expression('NOW()'),
-            ]
         ];
     }
 
@@ -53,18 +39,18 @@ class LoginForm extends Model
      *
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
-     * @throws \yii\base\Exception
      */
     public function validatePassword($attribute, $params)
     {
+        // ! Validate password need only verification of database record in table User
         if (!$this->hasErrors()) {
-            if (strlen($this->password) < 8) {
-                $this->addError($attribute, 'Пароль не может быть короче 8 символов');
-            }
-
-            if (!preg_match('/^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$/', $this->password)) {
-                $this->addError('password', 'Пароль должен содержать буквы и цифры');
-            }
+//            if (strlen($this->password) < 8) {
+//                $this->addError($attribute, 'Password cannot be shorter than 8 characters');
+//            }
+//
+//            if (!preg_match('/^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$/', $this->password)) {
+//                $this->addError('password', 'Password must contain letters and numbers');
+//            }
 
             $user = $this->getUser();
 
