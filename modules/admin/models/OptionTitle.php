@@ -4,6 +4,7 @@ namespace app\modules\admin\models;
 
 use Yii;
 use yii\base\NotSupportedException;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%option_title}}".
@@ -22,6 +23,15 @@ class OptionTitle extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%option_title}}';
+    }
+
+    /**
+     * @return array
+     */
+    public static function getCategories(): array
+    {
+        $categories = self::find()->where(['group' => -1])->asArray()->all();
+        return ArrayHelper::map($categories, 'id', 'name');
     }
 
     /**

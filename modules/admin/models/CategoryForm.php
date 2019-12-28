@@ -15,7 +15,20 @@ class CategoryForm extends Model
     public function rules()
     {
         return [
-            [['name', 'isRoot', 'category'], 'required'],
+            ['name', 'required'],
+            ['category', 'integer'],
+            ['isRoot', 'boolean']
         ];
+    }
+
+    public function save()
+    {
+        $model = new OptionTitle();
+        $model->setAttributes([
+            'name' => $this->name,
+            'group' => $this->isRoot ? -1 : $this->category,
+        ]);
+
+        return $model->validate() && $model->save();
     }
 }
