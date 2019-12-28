@@ -62,6 +62,11 @@ $config = [
                     'basePath'       => '@app/messages/',
                     'sourceLanguage' => 'en-US',
                 ],
+                'option'   => [
+                    'class'          => PhpMessageSource::class,
+                    'basePath'       => '@app/messages/',
+                    'sourceLanguage' => 'en-US',
+                ],
             ],
         ],
         'authManager'  => [
