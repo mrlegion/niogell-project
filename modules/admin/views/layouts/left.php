@@ -92,6 +92,11 @@ use yii\web\View;
                                 'icon' => 'fas fa-plus',
                                 'link' => ['vote/add']
                             ],
+                            [
+                                'title' => 'Options',
+                                'icon' => 'fas fa-cog',
+                                'link' => ['option/index']
+                            ],
                         ],
 
                     ]) ?>
